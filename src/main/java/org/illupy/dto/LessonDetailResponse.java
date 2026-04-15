@@ -14,15 +14,7 @@ public class LessonDetailResponse {
     private String content;
     private String thumbnailUrl;
     private String status;
-    private List<LessonAssetItem> assets;
-
-    @Data
-    @Builder
-    public static class LessonAssetItem {
-        private Long id;
-        private String type;
-        private String fileUrl;
-        private String content;
-        private Integer orderIndex;
-    }
+    private String previewAudioUrl;
+    private String previewModelCode;
+    private List<LessonAssetResponse> assets;
 }

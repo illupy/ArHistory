@@ -30,6 +30,12 @@ public class Lesson {
     @Column(name = "thumbnail_url", columnDefinition = "TEXT")
     private String thumbnailUrl;
 
+    @Column(name = "preview_audio_url", columnDefinition = "TEXT")
+    private String previewAudioUrl;
+
+    @Column(name = "preview_model_code", columnDefinition = "TEXT")
+    private String previewModelCode;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private LessonStatus status;

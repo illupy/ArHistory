@@ -2,6 +2,7 @@ package org.illupy.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.illupy.dto.CreateLessonRequest;
+import org.illupy.dto.LessonAssetResponse;
 import org.illupy.dto.LessonDetailResponse;
 import org.illupy.dto.LessonResponse;
 import org.illupy.entity.Asset;
@@ -61,7 +62,18 @@ public class LessonServiceImpl implements LessonService {
                 .orElseThrow(() -> new ResourceNotFoundException("Marker not found"));
 
         Lesson lesson = marker.getLesson();
+
         List<Asset> assets = assetRepository.findByLessonIdOrderByOrderIndexAsc(lesson.getId());
+
+        List<LessonAssetResponse> assetResponses = assets.stream()
+                .map(asset -> LessonAssetResponse.builder()
+                        .id(asset.getId())
+                        .type(asset.getType() != null ? asset.getType().name() : null)
+                        .fileUrl(asset.getFileUrl())
+                        .content(asset.getContent())
+                        .orderIndex(asset.getOrderIndex())
+                        .build())
+                .toList();
 
         return LessonDetailResponse.builder()
                 .id(lesson.getId())
@@ -69,19 +81,12 @@ public class LessonServiceImpl implements LessonService {
                 .description(lesson.getDescription())
                 .content(lesson.getContent())
                 .thumbnailUrl(lesson.getThumbnailUrl())
-                .status(lesson.getStatus().name())
-                .assets(assets.stream().map(asset ->
-                        LessonDetailResponse.LessonAssetItem.builder()
-                                .id(asset.getId())
-                                .type(asset.getType().name())
-                                .fileUrl(asset.getFileUrl())
-                                .content(asset.getContent())
-                                .orderIndex(asset.getOrderIndex())
-                                .build()
-                ).toList())
+                .status(lesson.getStatus() != null ? lesson.getStatus().name() : null)
+                .previewAudioUrl(lesson.getPreviewAudioUrl())
+                .previewModelCode(lesson.getPreviewModelCode())
+                .assets(assetResponses)
                 .build();
     }
-
     private LessonResponse toResponse(Lesson lesson) {
         return LessonResponse.builder()
                 .id(lesson.getId())
