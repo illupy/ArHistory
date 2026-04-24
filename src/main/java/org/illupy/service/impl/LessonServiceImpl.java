@@ -1,20 +1,14 @@
 package org.illupy.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.illupy.dto.CreateLessonRequest;
-import org.illupy.dto.LessonAssetResponse;
-import org.illupy.dto.LessonDetailResponse;
-import org.illupy.dto.LessonResponse;
+import org.illupy.dto.*;
 import org.illupy.entity.Asset;
 import org.illupy.entity.Lesson;
 import org.illupy.entity.Marker;
 import org.illupy.entity.User;
 import org.illupy.enums.LessonStatus;
 import org.illupy.exception.ResourceNotFoundException;
-import org.illupy.repository.AssetRepository;
-import org.illupy.repository.LessonRepository;
-import org.illupy.repository.MarkerRepository;
-import org.illupy.repository.UserRepository;
+import org.illupy.repository.*;
 import org.illupy.service.LessonService;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +22,8 @@ public class LessonServiceImpl implements LessonService {
     private final UserRepository userRepository;
     private final MarkerRepository markerRepository;
     private final AssetRepository assetRepository;
+    private final QuizRepository quizRepository;
+    private final GameScenarioRepository gameScenarioRepository;
 
     @Override
     public LessonResponse create(CreateLessonRequest request) {
@@ -65,6 +61,9 @@ public class LessonServiceImpl implements LessonService {
 
         List<Asset> assets = assetRepository.findByLessonIdOrderByOrderIndexAsc(lesson.getId());
 
+        boolean hasQuiz = quizRepository.findByLessonId(lesson.getId()).isPresent();
+        boolean hasGamification = gameScenarioRepository.findByLessonIdAndStatus(lesson.getId(), "ACTIVE").isPresent();
+
         List<LessonAssetResponse> assetResponses = assets.stream()
                 .map(asset -> LessonAssetResponse.builder()
                         .id(asset.getId())
@@ -84,6 +83,8 @@ public class LessonServiceImpl implements LessonService {
                 .status(lesson.getStatus() != null ? lesson.getStatus().name() : null)
                 .previewAudioUrl(lesson.getPreviewAudioUrl())
                 .previewModelCode(lesson.getPreviewModelCode())
+                .hasQuiz(hasQuiz)
+                .hasGamification(hasGamification)
                 .assets(assetResponses)
                 .build();
     }

@@ -16,5 +16,7 @@ public class LessonDetailResponse {
     private String status;
     private String previewAudioUrl;
     private String previewModelCode;
+    private Boolean hasQuiz;
+    private Boolean hasGamification;
     private List<LessonAssetResponse> assets;
 }
