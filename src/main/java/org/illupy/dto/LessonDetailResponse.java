@@ -18,5 +18,7 @@ public class LessonDetailResponse {
     private String previewModelCode;
     private Boolean hasQuiz;
     private Boolean hasGamification;
+    private Boolean hasMarker;
+    private Integer stepCount;
     private List<LessonAssetResponse> assets;
 }

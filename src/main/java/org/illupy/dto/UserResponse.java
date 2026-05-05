@@ -3,11 +3,13 @@ package org.illupy.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
-public class LoginResponse {
-    private Long userId;
+public class UserResponse {
+    private Long id;
     private String email;
     private String role;
-    private String token;
+    private LocalDateTime createdAt;
 }

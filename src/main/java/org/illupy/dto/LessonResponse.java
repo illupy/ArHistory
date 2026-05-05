@@ -12,4 +12,7 @@ public class LessonResponse {
     private String content;
     private String thumbnailUrl;
     private String status;
+    private Boolean hasQuiz;
+    private Boolean hasGamification;
+    private String markerCode;
 }

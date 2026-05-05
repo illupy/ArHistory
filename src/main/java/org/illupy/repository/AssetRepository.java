@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface AssetRepository extends JpaRepository<Asset, Long> {
     List<Asset> findByLessonIdOrderByOrderIndexAsc(Long lessonId);
+    void deleteAllByLessonId(Long lessonId);
+    long countByLessonId(Long lessonId);
 }
