@@ -14,11 +14,12 @@ public class LessonDetailResponse {
     private String content;
     private String thumbnailUrl;
     private String status;
-    private String previewAudioUrl;
     private String previewModelCode;
+    private String previewAudioUrl;
     private Boolean hasQuiz;
     private Boolean hasGamification;
     private Boolean hasMarker;
     private Integer stepCount;
     private List<LessonAssetResponse> assets;
+    private List<MarkerResponse> markers;
 }

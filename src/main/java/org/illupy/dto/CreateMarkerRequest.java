@@ -14,4 +14,8 @@ public class CreateMarkerRequest {
 
     @NotBlank
     private String markerCode;
+
+    private String previewModelCode;
+    private String previewAudioUrl;
+    private Boolean active;
 }

@@ -2,56 +2,61 @@ package org.illupy.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.illupy.common.ApiResponse;
-import org.springframework.beans.factory.annotation.Value;
+import org.illupy.dto.PresignResponse;
+import org.illupy.service.StorageService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/uploads")
 @RequiredArgsConstructor
 public class UploadController {
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+    private final StorageService storageService;
 
-    @PostMapping("/audio")
-    public ResponseEntity<ApiResponse<String>> uploadAudio(@RequestParam("file") MultipartFile file) throws IOException {
-        String fileUrl = saveFile(file, "audio", ".mp3");
-        return ResponseEntity.ok(ApiResponse.success(fileUrl));
+    // ---------------------------------------------------------------
+    // Presigned URL (recommended) — FE uploads directly to Supabase
+    // POST /api/uploads/presign  body: { subDir, filename }
+    // Returns: { signedUrl, publicUrl }
+    // ---------------------------------------------------------------
+
+    @PostMapping("/presign")
+    public ResponseEntity<ApiResponse<PresignResponse>> presign(@RequestBody Map<String, String> body) {
+        String subDir   = body.getOrDefault("subDir", "images");
+        String filename = body.getOrDefault("filename", "file");
+        PresignResponse resp = storageService.presign(subDir, filename);
+        return ResponseEntity.ok(ApiResponse.success(resp));
     }
+
+    // ---------------------------------------------------------------
+    // Legacy server-side upload (kept as fallback)
+    // ---------------------------------------------------------------
 
     @PostMapping("/image")
-    public ResponseEntity<ApiResponse<String>> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
-        String fileUrl = saveFile(file, "images", ".png");
-        return ResponseEntity.ok(ApiResponse.success(fileUrl));
+    public ResponseEntity<ApiResponse<String>> uploadImage(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(ApiResponse.success(storageService.store(file, "images")));
     }
 
-    private String saveFile(MultipartFile file, String subDir, String defaultExt) throws IOException {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("File không được để trống");
-        }
+    @PostMapping("/audio")
+    public ResponseEntity<ApiResponse<String>> uploadAudio(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(ApiResponse.success(storageService.store(file, "audio")));
+    }
 
-        String originalFilename = file.getOriginalFilename();
-        String ext = (originalFilename != null && originalFilename.contains("."))
-                ? originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase()
-                : defaultExt;
+    @PostMapping("/video")
+    public ResponseEntity<ApiResponse<String>> uploadVideo(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(ApiResponse.success(storageService.store(file, "videos")));
+    }
 
-        Path targetDir = Paths.get(uploadDir, subDir);
-        Files.createDirectories(targetDir);
-
-        String fileName = System.currentTimeMillis() + ext;
-        Path destination = targetDir.resolve(fileName);
-        file.transferTo(destination.toFile());
-
-        return "/uploads/" + subDir + "/" + fileName;
+    @PostMapping("/images")
+    public ResponseEntity<ApiResponse<List<String>>> uploadMultipleImages(@RequestParam("files") MultipartFile[] files) {
+        if (files.length > 4) throw new IllegalArgumentException("Tối đa 4 ảnh");
+        List<String> urls = new ArrayList<>();
+        for (MultipartFile file : files) urls.add(storageService.store(file, "images"));
+        return ResponseEntity.ok(ApiResponse.success(urls));
     }
 }

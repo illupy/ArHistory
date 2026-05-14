@@ -1,6 +1,10 @@
 package org.illupy.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.illupy.dto.CreateAssetRequest;
 import org.illupy.dto.LessonAssetResponse;
 import org.illupy.dto.UpdateAssetRequest;
@@ -14,14 +18,17 @@ import org.illupy.service.AssetService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AssetServiceImpl implements AssetService {
 
     private final AssetRepository assetRepository;
     private final LessonRepository lessonRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
     public List<LessonAssetResponse> getByLessonId(Long lessonId) {
@@ -35,12 +42,20 @@ public class AssetServiceImpl implements AssetService {
         Lesson lesson = lessonRepository.findById(request.getLessonId())
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not found"));
 
+        AssetType type = AssetType.valueOf(request.getType().toUpperCase());
+
+        // Validate IMAGE_GALLERY max 4 images
+        if (type == AssetType.IMAGE_GALLERY && request.getMediaUrls() != null && request.getMediaUrls().size() > 4) {
+            throw new IllegalArgumentException("IMAGE_GALLERY chỉ chứa tối đa 4 ảnh");
+        }
+
         Asset asset = Asset.builder()
                 .lesson(lesson)
-                .type(AssetType.valueOf(request.getType().toUpperCase()))
+                .type(type)
                 .fileUrl(request.getFileUrl())
                 .content(request.getContent())
                 .orderIndex(request.getOrderIndex())
+                .mediaUrls(toJson(request.getMediaUrls()))
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -57,6 +72,12 @@ public class AssetServiceImpl implements AssetService {
         if (request.getFileUrl() != null) asset.setFileUrl(request.getFileUrl());
         if (request.getContent() != null) asset.setContent(request.getContent());
         if (request.getOrderIndex() != null) asset.setOrderIndex(request.getOrderIndex());
+        if (request.getMediaUrls() != null) {
+            if (request.getMediaUrls().size() > 4) {
+                throw new IllegalArgumentException("IMAGE_GALLERY chỉ chứa tối đa 4 ảnh");
+            }
+            asset.setMediaUrls(toJson(request.getMediaUrls()));
+        }
 
         asset = assetRepository.save(asset);
         return toResponse(asset);
@@ -77,6 +98,27 @@ public class AssetServiceImpl implements AssetService {
                 .fileUrl(asset.getFileUrl())
                 .content(asset.getContent())
                 .orderIndex(asset.getOrderIndex())
+                .mediaUrls(fromJson(asset.getMediaUrls()))
                 .build();
+    }
+
+    private String toJson(List<String> urls) {
+        if (urls == null || urls.isEmpty()) return null;
+        try {
+            return objectMapper.writeValueAsString(urls);
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to serialize mediaUrls", e);
+            return null;
+        }
+    }
+
+    private List<String> fromJson(String json) {
+        if (json == null || json.isBlank()) return Collections.emptyList();
+        try {
+            return objectMapper.readValue(json, new TypeReference<List<String>>() {});
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to deserialize mediaUrls: {}", json, e);
+            return Collections.emptyList();
+        }
     }
 }

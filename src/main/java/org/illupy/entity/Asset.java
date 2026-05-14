@@ -36,6 +36,9 @@ public class Asset {
     @Column(name = "order_index")
     private Integer orderIndex;
 
+    @Column(name = "media_urls", columnDefinition = "TEXT")
+    private String mediaUrls;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 }

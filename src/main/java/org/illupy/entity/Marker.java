@@ -30,4 +30,14 @@ public class Marker {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "preview_model_code")
+    private String previewModelCode;
+
+    @Column(name = "preview_audio_url")
+    private String previewAudioUrl;
+
+    @Column(name = "active", nullable = false)
+    @Builder.Default
+    private Boolean active = true;
 }

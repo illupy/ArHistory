@@ -8,6 +8,4 @@ public class UpdateLessonRequest {
     private String description;
     private String content;
     private String thumbnailUrl;
-    private String previewAudioUrl;
-    private String previewModelCode;
 }
