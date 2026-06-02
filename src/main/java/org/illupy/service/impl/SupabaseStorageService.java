@@ -168,7 +168,7 @@ public class SupabaseStorageService implements StorageService {
             String publicUrl = supabaseUrl + "/storage/v1/object/public/" + bucket + "/" + objectPath;
 
             log.info("Presigned URL created for: {}", objectPath);
-            return new PresignResponse(signedUrl, publicUrl);
+            return new PresignResponse(signedUrl, publicUrl, token, bucket, objectPath);
         } catch (HttpClientErrorException e) {
             throw new RuntimeException("Tạo presigned URL thất bại: " + e.getResponseBodyAsString(), e);
         }
