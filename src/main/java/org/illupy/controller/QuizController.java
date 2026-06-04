@@ -86,4 +86,13 @@ public class QuizController {
         questionRepository.deleteById(questionId);
         return ApiResponse.success(null, "Question deleted");
     }
+
+    @DeleteMapping("/{quizId}")
+    public ApiResponse<Void> deleteQuiz(@PathVariable Long quizId) {
+        if (!quizRepository.existsById(quizId)) {
+            throw new ResourceNotFoundException("Quiz not found");
+        }
+        quizRepository.deleteById(quizId);
+        return ApiResponse.success(null, "Quiz deleted");
+    }
 }

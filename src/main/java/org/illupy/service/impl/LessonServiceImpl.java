@@ -73,7 +73,17 @@ public class LessonServiceImpl implements LessonService {
         log.info("Get lesson by marker {}", markerCode);
         Marker marker = markerRepository.findByMarkerCode(markerCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Marker not found"));
-        LessonDetailResponse response = toDetailResponse(marker.getLesson());
+
+        if (!Boolean.TRUE.equals(marker.getActive())) {
+            throw new ResourceNotFoundException("Marker is not active");
+        }
+
+        Lesson lesson = marker.getLesson();
+        if (lesson.getStatus() != LessonStatus.PUBLISH) {
+            throw new ResourceNotFoundException("Lesson is not published");
+        }
+
+        LessonDetailResponse response = toDetailResponse(lesson);
         response.setPreviewModelCode(marker.getPreviewModelCode());
         response.setPreviewAudioUrl(marker.getPreviewAudioUrl());
         return response;
@@ -188,7 +198,7 @@ public class LessonServiceImpl implements LessonService {
 
     private LessonResponse toFullResponse(Lesson lesson) {
         boolean hasQuiz = quizRepository.findByLessonId(lesson.getId()).isPresent();
-        boolean hasGame = gameScenarioRepository.findByLessonIdAndStatus(lesson.getId(), "ACTIVE").isPresent();
+//        boolean hasGame = gameScenarioRepository.findByLessonIdAndStatus(lesson.getId(), "ACTIVE").isPresent();
         List<Marker> markers = markerRepository.findByLessonId(lesson.getId());
 
         return LessonResponse.builder()
@@ -199,7 +209,7 @@ public class LessonServiceImpl implements LessonService {
                 .thumbnailUrl(lesson.getThumbnailUrl())
                 .status(lesson.getStatus().name())
                 .hasQuiz(hasQuiz)
-                .hasGamification(hasGame)
+//                .hasGamification(hasGame)
                 .markerCode(markers.isEmpty() ? null : markers.get(0).getMarkerCode())
                 .build();
     }
