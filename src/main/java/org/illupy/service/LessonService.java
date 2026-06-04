@@ -5,7 +5,7 @@ import org.illupy.dto.*;
 import java.util.List;
 
 public interface LessonService {
-    LessonResponse create(CreateLessonRequest request);
+    LessonResponse create(CreateLessonRequest request, String createdBy);
     List<LessonResponse> getAll();
     LessonDetailResponse getById(Long id);
     LessonDetailResponse getByMarkerCode(String markerCode);

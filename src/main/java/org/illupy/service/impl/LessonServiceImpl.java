@@ -10,7 +10,6 @@ import org.illupy.service.MarkerService;
 import org.illupy.entity.Asset;
 import org.illupy.entity.Lesson;
 import org.illupy.entity.Marker;
-import org.illupy.entity.User;
 import org.illupy.enums.LessonStatus;
 import org.illupy.exception.ResourceNotFoundException;
 import org.illupy.repository.*;
@@ -27,7 +26,6 @@ import java.util.List;
 @Slf4j
 public class LessonServiceImpl implements LessonService {
     private final LessonRepository lessonRepository;
-    private final UserRepository userRepository;
     private final MarkerRepository markerRepository;
     private final AssetRepository assetRepository;
     private final QuizRepository quizRepository;
@@ -36,17 +34,14 @@ public class LessonServiceImpl implements LessonService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public LessonResponse create(CreateLessonRequest request) {
-        User teacher = userRepository.findById(1L)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
-
+    public LessonResponse create(CreateLessonRequest request, String createdBy) {
         Lesson lesson = Lesson.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .content(request.getContent())
                 .thumbnailUrl(request.getThumbnailUrl())
                 .status(LessonStatus.DRAFT)
-                .createdBy(teacher)
+                .createdBy(createdBy)
                 .createdAt(LocalDateTime.now())
                 .build();
 

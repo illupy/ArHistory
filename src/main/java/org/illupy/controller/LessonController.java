@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.illupy.common.ApiResponse;
 import org.illupy.dto.*;
 import org.illupy.service.LessonService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +20,10 @@ public class LessonController {
     private final LessonService lessonService;
 
     @PostMapping
-    public ApiResponse<LessonResponse> create(@Valid @RequestBody CreateLessonRequest request) {
-        return ApiResponse.success(lessonService.create(request), "Lesson created successfully");
+    public ApiResponse<LessonResponse> create(@Valid @RequestBody CreateLessonRequest request,
+                                               Authentication authentication) {
+        String createdBy = authentication.getName();
+        return ApiResponse.success(lessonService.create(request, createdBy), "Lesson created successfully");
     }
 
     @GetMapping

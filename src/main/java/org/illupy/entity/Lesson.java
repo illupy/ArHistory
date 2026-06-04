@@ -34,9 +34,8 @@ public class Lesson {
     @Column(nullable = false, length = 50)
     private LessonStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private User createdBy;
+    @Column(name = "created_by", length = 255)
+    private String createdBy;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
