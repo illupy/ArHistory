@@ -13,4 +13,8 @@ public class CreateMatch3SetRequest {
     private String imageUrl3;
     @NotBlank
     private String note;
+
+    private String noteType; // TEXT, IMAGE, MODEL
+    private String noteMediaUrl;
+    private String noteModelCode;
 }

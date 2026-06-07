@@ -26,6 +26,9 @@ public class Match3ServiceImpl implements Match3Service {
                 .imageUrl2(request.getImageUrl2())
                 .imageUrl3(request.getImageUrl3())
                 .note(request.getNote())
+                .noteType(request.getNoteType() != null ? request.getNoteType() : "TEXT")
+                .noteMediaUrl(request.getNoteMediaUrl())
+                .noteModelCode(request.getNoteModelCode())
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -56,6 +59,20 @@ public class Match3ServiceImpl implements Match3Service {
         if (request.getImageUrl2() != null) set.setImageUrl2(request.getImageUrl2());
         if (request.getImageUrl3() != null) set.setImageUrl3(request.getImageUrl3());
         if (request.getNote() != null) set.setNote(request.getNote());
+        if (request.getNoteType() != null) {
+            set.setNoteType(request.getNoteType());
+            // Clear fields not related to the new type
+            if ("TEXT".equals(request.getNoteType())) {
+                set.setNoteMediaUrl(null);
+                set.setNoteModelCode(null);
+            } else if ("IMAGE".equals(request.getNoteType())) {
+                set.setNoteModelCode(null);
+            } else if ("MODEL".equals(request.getNoteType())) {
+                set.setNoteMediaUrl(null);
+            }
+        }
+        if (request.getNoteMediaUrl() != null) set.setNoteMediaUrl(request.getNoteMediaUrl().isEmpty() ? null : request.getNoteMediaUrl());
+        if (request.getNoteModelCode() != null) set.setNoteModelCode(request.getNoteModelCode().isEmpty() ? null : request.getNoteModelCode());
 
         set = match3SetRepository.save(set);
         return toResponse(set);
@@ -102,6 +119,9 @@ public class Match3ServiceImpl implements Match3Service {
                 .imageUrl2(set.getImageUrl2())
                 .imageUrl3(set.getImageUrl3())
                 .note(set.getNote())
+                .noteType(set.getNoteType())
+                .noteMediaUrl(set.getNoteMediaUrl())
+                .noteModelCode(set.getNoteModelCode())
                 .build();
     }
 }

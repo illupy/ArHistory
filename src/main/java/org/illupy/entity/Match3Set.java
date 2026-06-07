@@ -30,6 +30,16 @@ public class Match3Set {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String note;
 
+    @Column(name = "note_type", length = 50)
+    @Builder.Default
+    private String noteType = "TEXT"; // TEXT, IMAGE, MODEL
+
+    @Column(name = "note_media_url", columnDefinition = "TEXT")
+    private String noteMediaUrl;
+
+    @Column(name = "note_model_code", length = 255)
+    private String noteModelCode;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 }

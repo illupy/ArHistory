@@ -22,4 +22,5 @@ public class LessonDetailResponse {
     private Integer stepCount;
     private List<LessonAssetResponse> assets;
     private List<MarkerResponse> markers;
+    private List<StepAnnotationResponse> annotations;
 }

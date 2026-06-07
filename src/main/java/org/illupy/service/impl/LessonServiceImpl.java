@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.illupy.dto.*;
+import org.illupy.service.AnnotationService;
 import org.illupy.service.MarkerService;
 import org.illupy.entity.Asset;
 import org.illupy.entity.Lesson;
@@ -31,6 +32,7 @@ public class LessonServiceImpl implements LessonService {
     private final QuizRepository quizRepository;
     private final GameScenarioRepository gameScenarioRepository;
     private final MarkerService markerService;
+    private final AnnotationService annotationService;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -154,6 +156,8 @@ public class LessonServiceImpl implements LessonService {
                         .build())
                 .toList();
 
+        List<StepAnnotationResponse> annotationResponses = annotationService.getByLessonId(lesson.getId());
+
         return LessonDetailResponse.builder()
                 .id(lesson.getId())
                 .title(lesson.getTitle())
@@ -167,6 +171,7 @@ public class LessonServiceImpl implements LessonService {
                 .stepCount(assets.size())
                 .assets(assetResponses)
                 .markers(markerResponses)
+                .annotations(annotationResponses)
                 .build();
     }
 
@@ -190,6 +195,7 @@ public class LessonServiceImpl implements LessonService {
             return Collections.emptyList();
         }
     }
+
 
     private LessonResponse toFullResponse(Lesson lesson) {
         boolean hasQuiz = quizRepository.findByLessonId(lesson.getId()).isPresent();

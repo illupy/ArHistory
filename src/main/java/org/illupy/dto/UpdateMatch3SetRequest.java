@@ -8,4 +8,7 @@ public class UpdateMatch3SetRequest {
     private String imageUrl2;
     private String imageUrl3;
     private String note;
+    private String noteType;
+    private String noteMediaUrl;
+    private String noteModelCode;
 }
